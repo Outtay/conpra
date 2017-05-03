@@ -11,7 +11,7 @@ int main (){
         int mass;
         scanf ("%i" , &mass );
         long e = mass * c * c;
-        printf ( "Case #%i: %li" , i ,e );
+        printf ( "Case #%i: %li\n" , i ,e );
 
     }
     return 0;

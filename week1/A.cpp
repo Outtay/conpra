@@ -8,10 +8,9 @@ int main (){
     scanf("%d", &t);
     for (int i = 1; i <= t; i++) {
         
-        std::string s1;
-        char s2[101];
-        scanf ("%100s" , s2 );
-        printf ( "Case #%d: Hello %s!\n" , i , s2 );
+        char s1[101];
+        scanf ("%100s" , s1 );
+        printf ( "Case #%d: Hello %s!\n" , i , s1 );
 
     }
     return 0;

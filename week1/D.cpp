@@ -5,7 +5,7 @@
 #include <vector>
 #include <algorithm>  
 
-void recursiveLoser(std::vector<std::vector<int>> &schools, int numberMatch){
+void recursiveLoser(std::vector<std::vector<int> > &schools, int numberMatch){
     if (numberMatch == 5)
         return;
     for (int j = 1; j < schools.size(); j++){
@@ -28,24 +28,35 @@ int main (){
     scanf("%i", &t);
     for (int i = 1; i <= t; i++) {
 
+        std::string result = "";
+
         int n;
         scanf("%i", &n);
-        std::vector<std::vector<int>> schools;
+        std::vector<std::vector<int> > schools;
         for (int j = 0; j < n; j++){
             std::vector<int> skills(5);
-            //scanf("%i", &skills[0]);
             scanf ("%i %i %i %i %i" , &skills[0], &skills[1], &skills[2], &skills[3], &skills[4]);
             std::sort(skills.begin(), skills.end(), std::greater<int>());
 
             schools.push_back(skills);
-            //scanf("%i", x1);
         }
         recursiveLoser(schools, 0);
-        scanf("%i", t);
+        for (int j = 0; j < schools.size(); j++){
+            for (int k = 0; k < 5; k++){
+                if (k == 4)
+                    result += std::to_string(schools[j][k]) + "\n";
+                else
+                    result += std::to_string(schools[j][k]) + " ";
+            }
+        }
+        printf("Case #%i:\n", i);
+        printf("%s", result.c_str());
+        printf("\n");
+        //scanf("%i", n);
 
     }
-    scanf("%i", t);
 
+    
     return 0;
 
 }

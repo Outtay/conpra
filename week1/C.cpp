@@ -2,6 +2,16 @@
 #include <iostream>
 #include <string>
 
+void findReplaceAll(std::string &wholeString, const char *toReplace, const char *replacement){
+
+    size_t index = wholeString.find(toReplace);
+    while (index != std::string::npos){
+        wholeString.replace(index, std::string(toReplace).length(), replacement);
+        index = wholeString.find(toReplace);
+    }
+}
+
+
 int main (){
     
     int t;
@@ -13,21 +23,20 @@ int main (){
         
         std::string output = "";
  
-        for (i = 1; i <= n; i++){
-            char s1[100000];
-            scanf ("%100000s" , s1 );
-            std::string s2 = s2;
-            size_t index = s2.find("ent");
-            s2.replace(index, std::string("ent").length(), "ierender");
+        for (int i = 1; i <= n; i++){
+            char s1[100001];
+
+            scanf(" %[^\n]100000s", s1);
+            std::string s2 = s1;
+
             
-            size_t index = s2.find("entin");
-            s2.replace(index, std::string("entin").length(), "ierende");
-            
-            size_t index = s2.find("enten");
-            s2.replace(index, std::string("enten").length(), "ierende");
+            findReplaceAll(s2, "entin", "ierende");
+            findReplaceAll(s2, "enten", "ierende");
+            findReplaceAll(s2, "ent", "ierender");
             output += s2;
+            if (i != n) output += "\n";
         }
-         printf ( "Case #%d:\n%s" , n , output );
+         printf ( "Case #1:\n%s\n" , output.c_str() );
 
     } else {
         return 0;
