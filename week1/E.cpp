@@ -4,18 +4,6 @@
 #include <vector>
 #include <math.h>
 
-void calculate(std::vector<std::string> numbers, std::vector<std::string> operators, int opIndex , long &result){
-    if (operators[opIndex] == "p"){
-        result += std::stol(numbers[opIndex+1]);
-        
-    } else if (operators[opIndex] == "m"){
-        result -= std::stol(numbers[opIndex+1]);
-    } else if (operators[opIndex] == "e"){
-        result = long( pow( double(result) ,double(std::stol(numbers[opIndex+1]))) );
-    } else if (operators[opIndex] == "t"){
-        result *= std::stol(numbers[opIndex+1]);
-    }
-}
 
 int main (){
     int t;
@@ -45,7 +33,7 @@ int main (){
                         break;
                     }
                 }
-            } else if (std::isalpha(s2[i])){
+            } else if (std::isalpha(s2[j])){
                 
                 if(s2[j] == 'p'){
                     operators.push_back(std::string("p"));

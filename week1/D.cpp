@@ -41,6 +41,7 @@ int main (){
             schools.push_back(skills);
         }
         recursiveLoser(schools, 0);
+        recursiveLoser(schools, 0);
         for (int j = 0; j < schools.size(); j++){
             for (int k = 0; k < 5; k++){
                 if (k == 4)
