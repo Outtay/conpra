@@ -11,7 +11,7 @@ int main (){
         std::string s1;
         char s2[101];
         scanf ("%100s" , s2 );
-        printf ( "Case #%d: Hello %s!" , i , s2 );
+        printf ( "Case #%d: Hello %s!\n" , i , s2 );
 
     }
     return 0;
