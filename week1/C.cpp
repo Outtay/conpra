@@ -29,7 +29,6 @@ int main (){
             scanf(" %[^\n]100000s", s1);
             std::string s2 = s1;
 
-            
             findReplaceAll(s2, "entin", "ierende");
             findReplaceAll(s2, "enten", "ierende");
             findReplaceAll(s2, "ent", "ierender");

@@ -27,7 +27,17 @@ D
 23 23 15 2 2
 23 54 12 1 1
 1 1 1 5 4
-10
+20
+5 5 5 5 5
+2 2 2 2 2
+3 2 1 5 5
+2 2 2 2 2
+3 6 5 4 6
+3 2 1 4 5
+2 2 2 2 1
+2 5 4 1 2
+3 2 1 4 7
+5 4 7 8 9
 5 5 5 5 5
 2 2 2 2 2
 3 2 1 5 5
@@ -39,16 +49,18 @@ D
 3 2 1 4 7
 5 4 7 8 9
 
+
 last case doesn't work, second to last line should be second, but isn't.
 Not sure what the problem can be... needs debugging.
 
 E
 
-5
+6
 2plus3
 5times10
 80tothepowerof1
 16minus3
 2plus7times17minus20tothepowerof1minus20plus30times2plus86
+1000000000minus1000000000plus2times3
 
 last line doesn't work in combination with all the others, off by one is likely
