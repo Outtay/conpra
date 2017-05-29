@@ -30,51 +30,60 @@ int main (){
             subnodes.push_back(tmp);
         }
 
-
+        int start = 1;
         //use priority queue for dijkstra and a helper to access the corresponding weight in the queue
         std::priority_queue< std::pair<int,int>, std::vector< std::pair<int,int> >, std::greater< std::pair<int,int> > > pq;
-        std::vector < int > pqHelper (n+1);
-        std::vector < int > pred (n+1); 
-        int dijinf = 101;
+        std::vector < int > pred (n+1);
+        std::vector <int> finalweights(n+1);
+        //pretty sure this is necessary to ignore already finished nodes 
+        std::vector < bool > seen(n+1);
+        int dijinf = 1000002;
         //a pair here is (weight, index of start node)
-        pq.push(std::make_pair(0,1));
-        pqHelper[1] = 0; 
+        pq.push(std::make_pair(0,start));
+        finalweights[start] = 0; 
         
         //assign dijinf to all other nodes
-        for (int j = 2; j < adjList.size(); j++){
-            pq.push(std::make_pair(dijinf,j));
-            pqHelper[j] = dijinf;
+        for (int j = 1; j < adjList.size(); j++){
+            if (start != j){
+                pq.push(std::make_pair(dijinf,j));
+                finalweights[j] = dijinf;
+            }
         } 
 
         while (!pq.empty()){
             std::pair <int, int> v = pq.top();
             pq.pop();
-            //now I saw that pq has no delete operation. following lazy advice from StackOverflow with attempt of flow control
+
+            if (!seen[v.second])
+                seen[v.second] = true;
+            else
+                continue;
+                
+            //now I saw that pq has no decrease key  operation. following lazy advice from StackOverflow with attempt of flow control
             //http://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
-            if (v.first == dijinf ) break;
+            if (v.first >= dijinf ) break;
             //+2 because I have the weight included
             for (int k = 0; k < adjList[v.second].size(); k+=2){
                 int alt = v.first + adjList[v.second][k+1];
-                if (alt < pqHelper[adjList[v.second][k]]){
+                if (alt < finalweights[adjList[v.second][k]]){
                     int neighbour = adjList[v.second][k];
-                    pqHelper[neighbour] = alt;
+                    finalweights[neighbour] = alt;
                     pred [neighbour] = v.second;
                     pq.push(std::make_pair(alt, neighbour));
 
                 }
             }
-
         }
         //this looks like it could have been done more elegantly, but it should work either way
         //
         int min = dijinf;
         for (int j = 0; j < subnodes.size(); j++){
-            if (pqHelper[subnodes[j]] < min)
-                min = pqHelper[subnodes[j]];
+            if (finalweights[subnodes[j]] < min)
+                min = finalweights[subnodes[j]];
         }
         std::vector<int> results;
         for (int j = 0; j < subnodes.size(); j++){
-            if (pqHelper[subnodes[j]] == min)
+            if (finalweights[subnodes[j]] == min)
                 results.push_back(subnodes[j]);
         }
         std::sort(results.begin(), results.end());

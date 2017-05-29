@@ -119,7 +119,7 @@ int main (){
             std::cin >> n >> min;
             
             //weed out if there are multiple supermarkets in a city. Could maybe done more efficiently?
-            /*int limit = supermarkets.size();
+            int limit = supermarkets.size();
             for(int k = 0; k < limit; k++){
                 if (supermarkets[k].first == n && supermarkets[k].second > min){
                     supermarkets.push_back(std::make_pair(n,min));
@@ -127,23 +127,25 @@ int main (){
                 else if (k == supermarkets.size()-1){
                     supermarkets.push_back(std::make_pair(n,min));
                 }
-            }*/
+            }
             if(supermarkets.size() != -1){
                 supermarkets.push_back(std::make_pair(n,min));
             }
         }
 
         //perform djikstra from the supermarkets and then choose the minimum
-        std::vector <int> finalweights(n+1);
+        std::vector <int> weightsStart(n+1);
+        std::vector <int> weightsGoal(n+1);
+        dijkstra(weightsStart, adjList, start, n);
+        dijkstra(weightsGoal, adjList, goal, n);
         int min = 1000001;
         for (int j = 0; j < supermarkets.size(); j++){
-            dijkstra(finalweights, adjList, supermarkets[j].first, n);
-            int minutes = finalweights[start] + finalweights[goal] + supermarkets[j].second;
+            int minutes = weightsStart[ supermarkets[j].first ] + weightsGoal[ supermarkets[j].first ] + supermarkets[j].second;
             if (minutes < min) 
                 min = minutes;
         }
 
-        //could otherwise probably be constructed if the graph is not connected
+        //could otherwise probably be constructed if the graph is not connected, I think
         if (min == 1000001) {
             std::cout << "Case #" << i << ": " << "impossible" << "\n";
             continue;
