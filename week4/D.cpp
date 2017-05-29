@@ -10,8 +10,10 @@
 void dijkstra(std::vector<int> &finalweights, std::vector< std::vector<int> > &adjList, int start, int n){
     //use priority queue for dijkstra and a helper to access the corresponding weight in the queue
     std::priority_queue< std::pair<int,int>, std::vector< std::pair<int,int> >, std::greater< std::pair<int,int> > > pq;
-    std::vector < int > pred (n+1); 
-    int dijinf = 101 + 1002;
+    std::vector < int > pred (n+1);
+    //pretty sure this is necessary to ignore already finished nodes 
+    std::vector < bool > seen(n+1);
+    int dijinf = 1000002;
     //a pair here is (weight, index of start node)
     pq.push(std::make_pair(0,start));
     finalweights[start] = 0; 
@@ -27,9 +29,15 @@ void dijkstra(std::vector<int> &finalweights, std::vector< std::vector<int> > &a
     while (!pq.empty()){
         std::pair <int, int> v = pq.top();
         pq.pop();
-        //now I saw that pq has no delete operation. following lazy advice from StackOverflow with attempt of flow control
+
+        if (!seen[v.second])
+            seen[v.second] = true;
+        else
+            continue;
+            
+        //now I saw that pq has no decrease key  operation. following lazy advice from StackOverflow with attempt of flow control
         //http://stackoverflow.com/questions/9209323/easiest-way-of-using-min-priority-queue-with-key-update-in-c
-        if (v.first == dijinf ) break;
+        if (v.first >= dijinf ) break;
         //+2 because I have the weight included
         for (int k = 0; k < adjList[v.second].size(); k+=2){
             int alt = v.first + adjList[v.second][k+1];
@@ -127,7 +135,7 @@ int main (){
 
         //perform djikstra from the supermarkets and then choose the minimum
         std::vector <int> finalweights(n+1);
-        int min = 101+1001;
+        int min = 1000001;
         for (int j = 0; j < supermarkets.size(); j++){
             dijkstra(finalweights, adjList, supermarkets[j].first, n);
             int minutes = finalweights[start] + finalweights[goal] + supermarkets[j].second;
@@ -136,7 +144,7 @@ int main (){
         }
 
         //could otherwise probably be constructed if the graph is not connected
-        if (min == 101+1001) {
+        if (min == 1000001) {
             std::cout << "Case #" << i << ": " << "impossible" << "\n";
             continue;
         }
