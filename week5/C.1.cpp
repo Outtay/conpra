@@ -26,21 +26,12 @@ class Graph {
         //std::vector <Edge> edges;
         std::vector < std::vector< Edge > > adj;
         std::queue <int> flowq; //for selection
-        int pot;
-        int indexFirstWarrior
 
         Graph(int n){
             vertexCount = n;
             height = std::vector < int > (n);
             excess = std::vector < int > (n);
             adj = std::vector < std::vector <Edge> > (n);
-        }
-        Graph(int n, int nPot){
-            vertexCount = n;
-            height = std::vector < int > (n);
-            excess = std::vector < int > (n);
-            adj = std::vector < std::vector <Edge> > (n);
-            pot = nPot;
         }
         void addEdge(int u, int v, int cap){
             Edge to{v, cap , 0};
@@ -100,9 +91,6 @@ void Graph::updateReverseEdgeFlow(int i, int j, int flow){
 //Push flow starting with (start)
 bool Graph::push(int start){
 
-    if (pot <= 0){
-        return false;
-    }
 
     for (int i = 0; i < adj[start].size(); i++){
         
@@ -115,7 +103,6 @@ bool Graph::push(int start){
             //Find the possible flow
             //if (edge[i].capacity == 0){}
             int flow = std::min(adj[start][i].capacity - adj[start][i].flow, excess[start]);
-            flow = 1;
             if (flow < 0) flow *= -1; //I think... this should work?
             //Deal with excess flow in vertices of both sides of the edge
             excess[start] -= flow;
@@ -180,64 +167,101 @@ int Graph::getMaxFlow(int source, int sink){
     return excess[sink];
 }
 
+std::string numberExtent(std::string input, int &k){
+    std::string tmpStr;
+    while(k < input.size() && isdigit(input[k])){
+        tmpStr.push_back(input[k]);
+        k++;
+    }
+    return tmpStr;
+
+}
+
+//important
+void parseJob(std::vector<int> &job, std::string input, int &k){
+    for ( ; k < input.size(); k++){
+        std::string tmpStr;
+        tmpStr = numberExtent(input, k);
+
+        int page = std::stoi(tmpStr);
+        if ( k >= input.size()){
+            job.push_back(page);
+            return;
+        }
+
+        if (input[k] == ','){
+            job.push_back(page);
+        } else if (input[k] == '-'){
+            ++k;
+            int endPage = std::stoi(numberExtent(input, k));
+            for (int i = page; i <= endPage; i++) 
+                job.push_back(i);
+        }
+        
+    }
+
+}
 
 int main (){
     
     int t;
     std::cin >> t;
     for (int i = 1; i <= t; i++) {
-        int nWar, nSorc, nPot, nSpell;
-        std::cin >> nWar >> nSorc >> nPot >> nSpell;
-
-        //index-wise: 0 is the source and nSorc+nWar*2+1 is the sink
-        //1 to nSorc are the Sorcerers
-        // nSorc + 1 to nWar*2 are the warriors with the additional node to 
-        // model node capacities (nSorc+1 and nSorc+2 are the same warrior)
-        Graph graph(nSorc+nWar*2+2, nPot);
-
-
-        std::vector < std::vector <int> > warriors(nWar+1);
-        std::vector < std::vector <int> > sorcerers(nSorc+1);
-
-        for (int j = 1; j <= nWar; j++){
-            int max, nwSpell;
-            std::cin >> max >> nwSpell;
-            //warriors[j].push_back(max); //can probably delete
+        int printers, pages;
+        std::cin >> printers >> pages;
+        
+        Graph graph(printers+pages+2);
+        std::vector <std::vector <int> > printJobs (printers);
+        for (int j = 0; j < printers; j++){
+            std::string input;
+            std::ws(std::cin);
+            std::getline (std::cin,input);
+            std::vector<int> job;
+            int k = 0;
+            parseJob(job, input, k);
             
-            graph.addEdge(nSorc+(j*2)-1, nSorc+(j*2), max);
-            graph.addEdge(nSorc+(j*2), nSorc+nWar*2+1, 10000000); //some big value should be alright here
-            for (int k = 1; k <= nwSpell; k++){
-                int spell;
-                std::cin >> spell;
-                warriors[j].push_back(spell);
+            printJobs[j] = job;
+            
+        }
+        //all pages can't be printed if there are not enough printers
+        if(printers < pages){
+            std::cout << "Case #" << i << ": " << "no" << "\n";
+            continue;
+        }
+        
+
+        //index-wise: 1 to pages are the pages
+        //pages+1 to pages+printers are the printjobs
+        //0 is the source and printers+pages+1 is the sink
+        for (int j = 1; j <= pages; j++){
+            //from source to every page
+            graph.addEdge(0,j,1);
+        }
+
+        std::set<int> pagesinPrinters; //use to determine if all pages appear at least once in the printJobs
+        for (int j = 0; j < printJobs.size(); j++){
+            
+            //from every job to the sink
+            graph.addEdge(pages+j+1,pages+printers+1,1);
+
+            for (int k = 0; k < printJobs[j].size(); k++){
+                //between page and printerjobs
+                graph.addEdge(printJobs[j][k], pages+j+1, 1);
+
+                pagesinPrinters.insert(printJobs[j][k]);
             }
         }
 
-        for (int j = 1; j <= nSorc; j++){
-            int nsSpell;
-            std::cin >> nsSpell;
-            graph.addEdge(0,j,nPot); //probably not correct... have to think about that
-            for (int k = 1; k <= nsSpell; k++){
-                int spell;
-                std::cin >> spell;
-                sorcerers[j].push_back(spell);
-            }
+        if (pagesinPrinters.size() != pages){
+            std::cout << "Case #" << i << ": " << "no" << "\n";
+            continue;
         }
-    
-        //holy shit... is that really necessary?
-        for (int j = 1; j < sorcerers.size(); j++){
-            for (int k = 1; k < sorcerers[j].size(); k++){
-                for(int x = 1; x < warriors.size(); x++){
-                    for(int y = 1; y < warriors[x].size(); y++){
-                        if (sorcerers[j][k] == warriors[x][y]){
-                            graph.addEdge(j,nSorc+(x+1),100); //yeah... also not sure about that capacity, but could work because of height
-                        }
-                    }
-                }
-            }
-        }
-        int maxFlow = graph.getMaxFlow(0,nSorc+nWar*2+1);
-        std::cout << "Case #" << i << ": " << maxFlow << "\n";
+        
+        int maxFlow = graph.getMaxFlow(0,printers+pages+1);
+        if (maxFlow >= pages)
+            std::cout << "Case #" << i << ": " << "yes" << "\n";
+        else 
+            std::cout << "Case #" << i << ": " << "no" << "\n";
 
     }
     return 0;
