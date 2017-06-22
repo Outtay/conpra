@@ -49,6 +49,124 @@ x....
 ......
 ......
 
+
+////////////////
+B
+
+3
+G
+D
+D
+D
+D
+D
+M
+M
+S
+S
+S
+
+GS
+D
+D
+D
+D
+M
+M
+M
+MS
+S
+S
+
+G
+D
+D
+D
+D
+M
+MS
+MS
+MS
+MS
+S
+
++++++++++++++++
+
+6
+GM
+DM
+DSG
+GSM
+S
+S
+SGD
+GM
+D
+D
+DGM
+
+SD
+MSD
+MD
+DG
+D
+SGD
+S
+GS
+MSD
+GSM
+DGS
+
+GS
+D
+SDG
+SD
+SD
+MD
+M
+GS
+DM
+MS
+S
+
+DS
+DSG
+MSD
+GS
+SDM
+MG
+MGD
+SDM
+MG
+DM
+M
+
+D
+MDS
+SMD
+GDM
+G
+SDG
+MGS
+SGD
+GDS
+SD
+S
+
+GDMS
+GDMS
+GDMS
+GDMS
+GDMS
+GDMS
+GDMS
+GDMS
+GDMS
+GDMS
+GDMS
+
+
+
 ////////////////////
 D
 
@@ -101,6 +219,64 @@ D
 
 5 1
 1 -3 4 -5 0
+
+//////////////////////
+F
+
+
+9
+///// 1
+6 5 4
+4 -1
+3 1
+1 2
+3 -1
+3 4
+1 -1
+
+5 6 6
+3 -1
+4 -1
+4 -1
+3 -1
+3 -1
+
+5 3 3
+1 -1
+3 1
+2 2
+3 -1
+3 -1
+
+3 1 6
+1 -1
+1 1
+1 2
+
+2 1 3
+1 -1
+1 1
+
+1 1 4
+1 -1
+
+4 3 6
+3 -1
+1 -1
+1 2
+1 -1
+
+3 8 5
+5 -1
+7 -1
+3 -1
+
+5 7 6
+7 -1
+7 1
+6 2
+7 -1
+2 -1
 
 
 

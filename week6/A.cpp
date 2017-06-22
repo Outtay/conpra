@@ -36,13 +36,13 @@ bool isSafe(std::vector< std::vector <int> > &board, int row, int col)
         }
     }*/
     int i, j;
-    for (i = row, j = col; i >= 0 && j >= 0; i--, j--)
+    for (i = row-1, j = col-1; i >= 0 && j >= 0; i--, j--)
     {
         if (board[i][j])
             return false;
     }
  
-    for (i = row, j = col; j >= 0 && i < board.size(); i++, j--)
+    for (i = row+1, j = col-1; j >= 0 && i < board.size(); i++, j--)
     {
         if (board[i][j])
             return false;
@@ -52,31 +52,24 @@ bool isSafe(std::vector< std::vector <int> > &board, int row, int col)
 }
  
 /*solve N Queen problem */
-bool solveNQ(std::vector< std::vector <int> > &board, int col)
-{
+bool solveNQ(std::vector< std::vector <int> > &board, int col){
 
-    //first check if the given conf is even a legal conf
-    for(int i = 0; i < board.size(); i++){
-        for(int j = 0; j < board.size(); j++){
-            if (board[i][j] == 1){
-                board[i][j] = 0;
-                if (!isSafe(board, i,j))
-                    return false;
-                board[i][j] = 1;
-            }
-        }
-    }
+    
     if (col >= board.size())
         return true;
-    for (int i = 0; i < board.size(); i++)
-    {
-        if ( board[i][col] == 1 || isSafe(board, i, col) ){
-            board[i][col] = 1;
+    for (int i = 0; i < board.size(); i++){
+        if (isSafe(board, i, col) ){
+            if (board[i][col] != 2)
+                board[i][col] = 1;
+            
             if (solveNQ(board, col + 1))
                 return true;
-            //board[i][col] = 0;
+            
+            if (board[i][col] != 2)
+                board[i][col] = 0;
         }
     }
+    
     return false;
 }
  
@@ -99,11 +92,42 @@ int main (){
                 if (c == '.')
                     board[j][k] = 0;
                 else
-                    board[j][k] = 1;
+                    board[j][k] = 2; //use a 2 to denote a fixed queen
             }
         }
 
-        if (solveNQ(board, 0)){
+        bool legal = true;
+        //first check if the given conf is even a legal conf
+        for(int i = 0; i < board.size() && legal; i++){
+            for(int j = 0; j < board.size() && legal; j++){
+                if (board[i][j]){
+                    board[i][j] = 0;
+                    if (!isSafe(board, i,j)){
+                        legal = false;
+                    }
+                    board[i][j] = 2;
+                }
+            }
+        }
+
+        /*
+        bool possible;
+        std::vector < std::vector <int> > tmp;
+        tmp = board;
+        int row = 0;
+        possible = solveNQ(tmp, 0, row);
+        while( !possible ){
+            if (row < board.size()){
+                tmp = board;
+                ++row;
+            } else 
+                break;
+            possible = solveNQ(tmp, 0, row);
+        }*/
+
+        //if (possible){
+        if (legal && solveNQ(board, 0)){
+            //board = tmp;
             std::cout << "Case #" << i << ":\n";
             for (int j = 0; j < n ; j++){
                 std::string s;

@@ -4,51 +4,137 @@
 #include <algorithm>
 #include <string>
 
-class Graph {
-    public: 
-        int vertexCount;
-        std::vector < std::vector< int > > adj;
 
-        Graph(int n){
-            vertexCount = n;
-            adj = std::vector < std::vector < int > > (n);
-        }
-        void addEdge(int u, int v){
-            adj[u].push_back(v);
-        }
-        
-};
+//https://stackoverflow.com/questions/728972/finding-all-the-subsets-of-a-set
+//Generate all subsets from a given vector
+std::vector< std::vector<int> > getAllSubsets(std::vector<int> set){
+    std::vector< std::vector<int> > subset;
+    std::vector<int> empty;
+    subset.push_back( empty );
 
-void recursiveHelper(std::vector<int> &concurrent, std::vector<int> &possible, int units, int workers, std::vector <int> &reqWorkers){
-    
+    for (int i = 0; i < set.size(); i++)
+    {
+        std::vector< std::vector<int> > subsetTemp = subset;
+
+        for (int j = 0; j < subsetTemp.size(); j++)
+            subsetTemp[j].push_back( set[i] );
+
+        for (int j = 0; j < subsetTemp.size(); j++)
+            subset.push_back( subsetTemp[j] );
+    }
+    return subset;
 }
 
-void recursiveFindSolution(std::vector< std::vector<int> > &adjMat, int workers, int units, std::vector <int> &reqWorkers, int someIndex){
-    std::vector< std::vector<int> > tmp = adjMat;
+
+//TODO: Sort by largest amount to get better performance
+std::vector <std::vector<int> > filterSubsets(std::vector < std::vector<int> > subsets, int workers, std::vector <int> &reqWorkers){
+    std::vector <int> amounts;
+    std::vector <std::vector<int> > filteredSubsets;
+    //start with 1 to skip the empty set
+    for (int i = 1; i < subsets.size(); i++){
+        int amount = 0;
+        for (int j = 0; j < subsets[i].size(); j++){
+            amount +=  reqWorkers [ subsets[i][j] ];
+        }
+        if (amount <= workers){
+            filteredSubsets.push_back(subsets[i]);
+            amounts.push_back(amount);
+        }
+    }
+    //remove single tasks if they are included in a multiple
+    for (int i = 0; i < filteredSubsets.size(); i++){
+        if (filteredSubsets[i].size() > 1){
+            for (int j = 0; j < filteredSubsets[i].size(); j++){
+                for (int k = 0; k < filteredSubsets.size(); k++){
+                    if (filteredSubsets[k].size() == 1 && filteredSubsets[i][j] == filteredSubsets[k][0]){
+                        filteredSubsets.erase(filteredSubsets.begin()+k);
+                        k--; 
+                        if (i > 0)
+                            i--;
+                    }
+                }
+            }
+        }
+    }
+
+    //workaround to sorting the list: reverse the vector. Should improve performance since biggest sets are chosen first
+    std::reverse(filteredSubsets.begin(), filteredSubsets.end());
+    return filteredSubsets;
+}
+
+//remove all outgoing connections of adjMat
+void removeOutgoing (std::vector< std::vector<int> > &adjMat, std::vector<int> subset){
+    for (int i = 0; i < subset.size(); i++){
+        for ( int y = 0; y < adjMat.size(); y++){
+            adjMat[ subset[i] ][y] = 0;      
+                   
+        }
+    }
+}
+
+bool ismatrixEmpty(std::vector< std::vector<int> > &adjMat){
+    for (int i = 0; i < adjMat.size(); i++){
+        for ( int j = 0; j < adjMat.size(); j++){
+            if (adjMat[i][j] != 0)
+                return false;
+        }
+    } 
+    return true;
+}
+
+// a bit much when it comes to parameters
+bool recursiveFindSolution(std::vector< std::vector<int> > &adjMat, int workers, int units, std::vector <int> &reqWorkers, int count, std::vector<int> & finished, std::vector<int> & unitorder){
+
+    if (count > units)
+        return false;
+    //Not sure if those are the correct conditions, but they seem to work
+    if (finished.size() == adjMat.size())// && ismatrixEmpty(adjMat))
+        return true;
+    
     std::vector<int> possible;
-    //TODO: test if column row, right order
-    for (int i = 0; i < tmp.size(); i++){
+    //first find all the tasks without dependencies
+    for (int i = 0; i < adjMat.size(); i++){
         int count = 0;
-        for (int j = 0; j < tmp.size(); j++){
-            if (adjMat[i][j] == 1)
+        for (int j = 0; j < adjMat.size(); j++){
+            if (adjMat[j][i] == 1)
                 count++;
         }
-        if (count == 0)
-            possible.push_back(i);
-    }
-
-    std::vector<int> concurrent;
-    for(int i = 0; i < possible.size(); i++){
-        for (int j = i; j < possible.size(); j++){
-            if (units-reqWorkers[j] >= 0)
+        //check if they haven't been done yet
+        bool unfinished = true;
+        for (int j = 0; j < finished.size() && unfinished; j++){
+            if (i == finished[j])
+                unfinished = false;
         }
+        if (count == 0 && unfinished)
+                possible.push_back(i);
     }
+    
+    //now filter them by finding out how many of those can actually be done at the same time
+    std::vector < std::vector<int> > possibleSubsets = filterSubsets(getAllSubsets(possible), workers, reqWorkers);
 
-    for (int i = 0; i < possible.size(); i++){
-        if (units - reqWorkers[possible[i]] >= 0 && workers-reqWorkers >= 0)
-            recursiveFindSolution(tmpModified, workers, units-reqWorkers[possible[i]], reqWorkers, someIndex);
+    for (int i = 0; i < possibleSubsets.size(); i++){
+        //remove all outgoing connections from the adjMat for the possible subset
+        std::vector< std::vector<int> > tmp = adjMat;
+        std::vector< int > tmpfin = finished;
+        std::vector< int > tmpunit = unitorder;
+        
+        removeOutgoing(tmp, possibleSubsets[i]);
+        finished.insert(finished.end(), possibleSubsets[i].begin(), possibleSubsets[i].end());
+        for(int j = 0; j < possibleSubsets[i].size(); j++){
+            unitorder[ possibleSubsets[i][j] ] = count;
+        }
+
+        if(recursiveFindSolution(tmp, workers, units, reqWorkers, ++count, finished, unitorder))
+            return true;
+        else{
+            //revert the vectors that are needed at the end and for calculating
+            finished = tmpfin;
+            unitorder = tmpunit;
+        }
+        count--;
         
     }
+    return false;
 }
 
 
@@ -57,20 +143,6 @@ int main (){
     int t;
     std::cin >> t;
     for (int i = 1; i <= t; i++) {
-        
-        /*int tasks, workers, units;
-        std::cin >> tasks >> workers >> units;
-
-        for (int j = 1; j <= tasks ; j++){
-            int u, v;
-            std::cin >> u >> v;
-
-            if (v != -1){
-                graph.addEdge(u,v);
-            }
-
-        }*/
-
 
         int tasks, workers, units;
         std::cin >> tasks >> workers >> units;
@@ -88,21 +160,16 @@ int main (){
             }
         }
 
-        recursiveFindSolution(&adjMat, workers, units, reqWorkers, someIndex);
+        std::vector<int> finished;
+        std::vector<int> unitorder(tasks);
+        if(recursiveFindSolution(adjMat, workers, units, reqWorkers, 0, finished, unitorder)){
+            std::cout << "Case #" << i << ":";
+            for (int j = 0; j < unitorder.size(); j++)
+                std::cout << " " << unitorder[j]+1;
+            std::cout << "\n";
+        } else 
+            std::cout << "Case #" << i << ": " << "impossible" << "\n";
 
-        //Accumulate the values based on the max of all previous incoming edges and the current weight.
-        for (int k = 1; k < n; k++){
-            int max = 0;
-            //iterate from the top of the matrix to before the middle
-            for (int l = 0; l < k; l++){ 
-                if (adjMat[l][k] == 1 && timeunits[l] > max){
-                    max = timeunits[l];
-                }
-            }
-            timeunits[k] += max;
-        }
-        
-        std::cout << "Case #" << i << ": " << "something" << "\n";
 
     }
     return 0;
