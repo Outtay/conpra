@@ -117,6 +117,13 @@ def binom(n,k,mod_facts):
     for p in mod_facts:
         # add (binom,p) to congruence list
         congruences.append((lucas_binom(n,k,p),p))
+        #print (str(congruences[-1][0]) + " " + str(congruences[-1][1]))
 
     # use CRT to combine congruences to one solution
     return crt(congruences)
+
+if __name__ == '__main__':
+    mod_facts = [2,3,5,7,11,13,17,19,23] # prime factors of m = 1155
+
+    # (8100 choose 4000) mod 1155
+    print(binom(18,3,mod_facts)) # should be 924

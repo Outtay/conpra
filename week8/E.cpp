@@ -4,10 +4,14 @@
 #include <algorithm>
 #include <string>
 #include <math.h>
+#include <utility>
+#include <stdint.h>
 
 
-int mod_exp(int b, int e, int mod){
-    int r = 1;
+//Source for everything: http://fishi.devtail.io/weblog/2015/06/25/computing-large-binomial-coefficients-modulo-prime-non-prime/
+
+long mod_exp(long b, long e, long mod){
+    long r = 1;
     while (e > 0){
         if ((e&1) == 1)
             r = (r*b)%mod;
@@ -17,10 +21,10 @@ int mod_exp(int b, int e, int mod){
     return r;
 }
 
-int fact_exp(int n, int p){
-    int e = 0;
-    int u = p;
-    int t = n;
+long fact_exp(long n, long p){
+    long e = 0;
+    long u = p;
+    long t = n;
     while (u <= t){
         e += t/u;
         u *= p;
@@ -29,8 +33,8 @@ int fact_exp(int n, int p){
 }
 
 
-std::vector<int> get_base_digits(int n, int b){
-    std::vector <int> d;
+std::vector<long> get_base_digits(long n, long b){
+    std::vector <long> d;
     while (n>0){
         d.push_back(n % b);
         n = n / b;
@@ -38,14 +42,14 @@ std::vector<int> get_base_digits(int n, int b){
     return d;
 }
 
-//init x with 0 and y with 1
-void egcd(int a, int b, int &x, int &y){
-    int u = 1; int v = 0;
+void egcd(long a, long b, long &x, long &y){
+    long u = 1; long v = 0;
+    x = 0; y = 1;
     while (a != 0){
-        int q = b/a;
-        int r = b % a;
-        int m = x-u*q;
-        int n = y-v*q;
+        long q = b/a;
+        long r = b % a;
+        long m = x-u*q;
+        long n = y-v*q;
         b = a; a = r;
         x = u; y = v;
         u = m; v = n;
@@ -53,35 +57,98 @@ void egcd(int a, int b, int &x, int &y){
 
 }
 
-/*
-# Chinese Remainder Theorem
-# Combine given congruences to one solution
-def crt(congruences):
-    # calculate the original modulo m
-    m = 1
-    for congruence in congruences:
-        m *= congruence[1]
+long crt (std::vector< std::pair <long, long> > congruences){
+    long m = 1;
+    for (long i = 0; i < congruences.size(); i++){
+        m *= congruences[i].second;
+    }
 
-    # combine congruences
-    result = 0
-    for congruence in congruences:
-        s, t = egcd(m//congruence[1],congruence[1])
-        result += (congruence[0]*s*m)//congruence[1]
+    long long int result = 0LL;
+    for (long i = 0; i < congruences.size(); i++){
+        long x, y;
+        egcd(m/congruences[i].second,congruences[i].second, x, y);
+        result += (congruences[i].first * x * m)/congruences[i].second;
+    }
+    return ((result % m) + m) % m;
+}
 
-    return result%m
-    */
-//int crt (std::vector) 
 
+
+long fermat_binom_advanced(long n, long k, long p){
+    long num_degree = fact_exp(n,p) - fact_exp(n-k,p);
+    long den_degree = fact_exp(k,p);
+    if (num_degree > den_degree)
+        return 0;
+    if (k>n)
+        return 0;
+    
+    long num = 1;
+    for (long i = n; i > n-k; i--){
+        long cur = i;
+        while ( (cur % p) == 0){
+            cur /= p;
+        }
+        num = (num * cur ) % p;
+    }
+
+    long denom = 1;
+    for (long i = 1; i < k+1; i++){
+        long cur = i;
+        while ( (cur % p) == 0){
+            cur /= p;
+        }
+        denom = (denom * cur) % p;
+    }
+    return (num * mod_exp(denom,p-2,p)) % p;
+}
+
+
+long lucas_binom(long n, long k, long p){
+    std::vector<long> np = get_base_digits(n,p);
+    std::vector<long> kp = get_base_digits(k,p);
+
+    long binom = 1;
+    for (long i = np.size()-1; i >= 0; i-- ){
+        long ni = np[i];
+        long ki = 0;
+        if (i < kp.size())
+            ki = kp[i];
+        
+        binom = (binom * fermat_binom_advanced(ni,ki,p)) % p;
+    }
+    return binom;
+}
+
+
+long binom(long n, long k, std::vector<long> mod_facts){
+    std::vector< std::pair<long, long> > congruences;
+    for (long i = 0; i < mod_facts.size(); i++){
+        congruences.push_back(std::make_pair(lucas_binom(n,k,mod_facts[i]),mod_facts[i]));
+    }
+    return crt(congruences);
+}
 
 int main (){
     
-    int t;
+    long t;
     std::cin >> t;
-    for (int i = 1; i <= t; i++) {
+    std::vector<long> mod_facts;
+    mod_facts.push_back(2);
+    mod_facts.push_back(3);
+    mod_facts.push_back(5);
+    mod_facts.push_back(7);
+    mod_facts.push_back(11);
+    mod_facts.push_back(13);
+    mod_facts.push_back(17);
+    mod_facts.push_back(19);
+    mod_facts.push_back(23);
+    
+    for (long i = 1; i <= t; i++) {
+        long n, m;
+        std::cin >> n >> m;
         
-        
-        std::cout << "Case #" << i << ": " << "something" << "\n";
 
+        std::cout << "Case #" << i << ": " << binom(n,m,mod_facts) << "\n";
     }
     return 0;
 }
