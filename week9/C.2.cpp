@@ -7,13 +7,18 @@
 #include <string>
 #include <queue>
 
+<<<<<<< HEAD
 //source: http://www.geeksforgeeks.org/dynamic-programming-set-21-box-stacking-problem/
 
+=======
+
+//source : http://www.geeksforgeeks.org/dynamic-programming-set-21-box-stacking-problem/
+>>>>>>> 1c88ea1cec17108cda79e28e5510f1df25d12295
 /* Representation of a box */
 struct Box
 {
   // h --> height, w --> width, d --> depth
-  int h, w, d;  // for simplicity of solution, always keep w <= d
+  int h, w, d;  // always keep w <= d
 };
  
 // A utility function to get minimum of two intgers
@@ -114,13 +119,15 @@ int main()
         for (int j = 0; j < n; j++){
             int x,y,z;
             std::cin >> x >> y >> z;
-            Box tmp = {x,y,z};
+            Box tmp;
+            if (y <= z)
+                tmp = {x,y,z};
+            else 
+                tmp = {x,z,y};
             boxes.push_back(tmp);
             Box tmp2 = {x,y,z};
             boxes.push_back(tmp2);
         }
-
-        Box arr[] = { {3, 1, 5}, {4,2,2}};
         
         int max = maxStackHeight(boxes, boxes.size());
         if ( max >= h)

@@ -108,6 +108,21 @@ int main (){
                 }
             }
 
+            /*int min = 0;
+            int tmp = 0;
+            for (int k = (checkpoints+1)*(j-1); k < (checkpoints+1)*j; k++){
+                min += car[k];
+                tmp += bike[k];
+            }
+            if (tmp < min)
+                min = tmp;
+
+            for (int c = 0; c < checkpoints; c++){    
+                for (int k = (checkpoints+1)*(j-1); k < (checkpoints+1)*j; k++){
+                    
+                }
+            }*/
+
             std::vector<int> finalweights (n);
             dijkstra(finalweights, adjList, 0, n);
             int min = finalweights[(checkpoints+1)];
