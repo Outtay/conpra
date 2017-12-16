@@ -7,6 +7,8 @@
 #include <string>
 #include <queue>
 
+//source: http://www.geeksforgeeks.org/dynamic-programming-set-21-box-stacking-problem/
+
 /* Representation of a box */
 struct Box
 {
@@ -114,6 +116,8 @@ int main()
             std::cin >> x >> y >> z;
             Box tmp = {x,y,z};
             boxes.push_back(tmp);
+            Box tmp2 = {x,y,z};
+            boxes.push_back(tmp2);
         }
 
         Box arr[] = { {3, 1, 5}, {4,2,2}};
